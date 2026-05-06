@@ -1,22 +1,26 @@
 name: deploy to ec2
 on:
-workflow_run:
-  workflows: ["Docker Image CI"]
-    types:
-      - completed
+ workflow_run:
+     workflows: ["Docker Image CI"]
+     types : 
+             - completed
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to EC2
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_KEY }}
-          script:
-            docker pull kavya00/node-app1:latest
-            docker stop node-app1 || true
-            docker rm node-app1 || true
-            docker run -d --name node-app1 -p 80:3000 kavya00/node-app:latest
+    deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+          - name: deploy to ec2
+            uses: appleboy/ssh-action@master
+            with:
+                host: ${{secrets.EC2_HOST}}
+                username: ${{secrets.EC2_USER}}
+                key: ${{secrets.EC2_KEY}}
+                script: | 
+                   docker pull kavya00/node-app1:latest
+                   docker rm -f node-app1 || true
+                   docker run -d -p 80:3000 --name node-app1 kavya00/node-app1:latest
+                
+                    
+
+                 
